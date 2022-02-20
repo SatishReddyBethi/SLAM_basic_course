@@ -1,7 +1,7 @@
 # Plot the ticks from the left and right motor.
 # 01_a_plot_motor_ticks.py
 # Claus Brenner, 07 NOV 2012
-from pylab import *
+import matplotlib.pyplot as plt
 
 if __name__ == '__main__':
     # Read all ticks of left and right motor.
@@ -16,6 +16,6 @@ if __name__ == '__main__':
         left_list.append(int(sp[2]))
         right_list.append(int(sp[6]))
 
-    plot(left_list)
-    plot(right_list)
-    show()
+    plt.plot(left_list)
+    plt.plot(right_list)
+    plt.show()

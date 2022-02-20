@@ -2,7 +2,7 @@
 # 02_a_filter_motor
 # Claus Brenner, 31 OCT 2012
 from math import sin, cos, pi
-from pylab import *
+import matplotlib.pyplot as plt
 from lego_robot import *
 
 # This function takes the old (x, y, heading) pose and the motor ticks
@@ -44,6 +44,6 @@ if __name__ == '__main__':
 
     # Draw result.
     for pose in filtered:
-        print pose
-        plot([p[0] for p in filtered], [p[1] for p in filtered], 'bo')
-    show()
+        print(pose)
+        plt.plot([p[0] for p in filtered], [p[1] for p in filtered], 'bo')
+    plt.show()
