@@ -29,12 +29,12 @@ def filter_step(old_pose, motor_ticks, ticks_to_mm, robot_width):
         theta = old_pose[2]
         alpha = (r-l)/robot_width
         Radius = l/alpha
-        Cx = old_pose[0] - ((Radius+robot_width)/2)*sin(theta)
-        Cy = old_pose[1] - ((Radius+robot_width)/2)*-cos(theta)
+        Cx = old_pose[0] - (Radius+(robot_width)/2)*sin(theta)
+        Cy = old_pose[1] - (Radius+(robot_width)/2)*-cos(theta)
         theta += alpha
         theta %= 2 * pi
-        x = Cx + ((Radius+robot_width)/2)*sin(theta)
-        y = Cy + ((Radius+robot_width)/2)*-cos(theta)
+        x = Cx + (Radius+(robot_width)/2)*sin(theta)
+        y = Cy + (Radius+(robot_width)/2)*-cos(theta)
         return (x, y, theta)
 
 if __name__ == '__main__':

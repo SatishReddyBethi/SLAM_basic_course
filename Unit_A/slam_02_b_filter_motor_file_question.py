@@ -8,6 +8,7 @@
 # Claus Brenner, 09 NOV 2012
 from math import sin, cos, pi
 from lego_robot import *
+import slam_02_a_filter_motor_question as oldmodel
 
 # This function takes the old (x, y, heading) pose and the motor ticks
 # (ticks_left, ticks_right) and returns the new (x, y, heading).
@@ -21,8 +22,7 @@ def filter_step(old_pose, motor_ticks, ticks_to_mm, robot_width,
         # --->>> Use your previous implementation.
         # Think about if you need to modify your old code due to the
         # scanner displacement?
-        
-        return (x, y, theta)
+        return oldmodel.filter_step(old_pose, motor_ticks, ticks_to_mm, robot_width)
 
     else:
         # Turn. Compute alpha, R, etc.
@@ -30,10 +30,15 @@ def filter_step(old_pose, motor_ticks, ticks_to_mm, robot_width,
         # --->>> Modify your previous implementation.
         # First modify the the old pose to get the center (because the
         #   old pose is the LiDAR's pose, not the robot's center pose).
+        old_pose = list(old_pose)
+        old_pose[1] -= scanner_displacement
+        old_pose = tuple(old_pose)
         # Second, execute your old code, which implements the motion model
         #   for the center of the robot.
+        x, y, theta = oldmodel.filter_step(old_pose, motor_ticks, ticks_to_mm, robot_width)
         # Third, modify the result to get back the LiDAR pose from
         #   your computed center. This is the value you have to return.
+        y += scanner_displacement
 
         return (x, y, theta)
 
@@ -65,5 +70,5 @@ if __name__ == '__main__':
     # Write all filtered positions to file.
     f = open("poses_from_ticks.txt", "w")
     for pose in filtered:
-        print >> f, "F %f %f %f" % pose
+        f.write("F %f %f %f\n" % pose)
     f.close()

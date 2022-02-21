@@ -5,11 +5,12 @@
 # Claus Brenner, 09 NOV 2012
 from lego_robot import *
 from math import sin, cos
+import slam_03_c_find_cylinders_question as oldCode
 
 # Find the derivative in scan data, ignoring invalid measurements.
 def compute_derivative(scan, min_dist):
     jumps = [ 0 ]
-    for i in xrange(1, len(scan) - 1):
+    for i in range(1, len(scan) - 1):
         l = scan[i-1]
         r = scan[i+1]
         if l > min_dist and r > min_dist:
@@ -23,13 +24,7 @@ def compute_derivative(scan, min_dist):
 # For each area between a left falling edge and a right rising edge,
 # determine the average ray number and the average depth.
 def find_cylinders(scan, scan_derivative, jump, min_dist):
-    cylinder_list = []
-    on_cylinder = False
-    sum_ray, sum_depth, rays = 0.0, 0.0, 0
-
-    # --->>> Insert here your previous solution from find_cylinders_question.py.
-
-    return cylinder_list
+    return oldCode.find_cylinders(scan,scan_derivative,jump,min_dist)
 
 def compute_cartesian_coordinates(cylinders, cylinder_offset):
     result = []
@@ -38,7 +33,11 @@ def compute_cartesian_coordinates(cylinders, cylinder_offset):
         # c is a tuple (beam_index, range).
         # For converting the beam index to an angle, use
         # LegoLogfile.beam_index_to_angle(beam_index)
-        result.append( (0,0) ) # Replace this by your (x,y)
+        beam_angle = LegoLogfile.beam_index_to_angle(c[0])
+        beam_range = c[1] + cylinder_offset
+        x = beam_range * cos(beam_angle)
+        y = beam_range * sin(beam_angle)
+        result.append( (x,y) ) # Replace this by your (x,y)
     return result
         
 
@@ -57,7 +56,7 @@ if __name__ == '__main__':
     # With zero or more points.
     # Note "D C" is also written for otherwise empty lines (no
     # cylinders in scan)
-    out_file = file("cylinders.txt", "w")
+    out_file = open("cylinders.txt", "w")
     for scan in logfile.scan_data:
         # Find cylinders.
         der = compute_derivative(scan, minimum_valid_distance)
@@ -66,8 +65,8 @@ if __name__ == '__main__':
         cartesian_cylinders = compute_cartesian_coordinates(cylinders,
                                                             cylinder_offset)
         # Write to file.
-        print >> out_file, "D C",
+        out_file.write("D C ")
         for c in cartesian_cylinders:
-            print >> out_file, "%.1f %.1f" % c,
-        print >> out_file
+            out_file.write("%.1f %.1f " % c)
+        out_file.write("\n")
     out_file.close()
