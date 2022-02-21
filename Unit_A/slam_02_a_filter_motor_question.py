@@ -14,12 +14,27 @@ def filter_step(old_pose, motor_ticks, ticks_to_mm, robot_width):
         # No turn. Just drive straight.
 
         # --->>> Implement your code to compute x, y, theta here.
+        l = ticks_to_mm * motor_ticks[0]
+        theta = old_pose[2]
+        x = old_pose[0] + ( l * cos(theta))
+        y = old_pose[1] + ( l * sin(theta))
         return (x, y, theta)
 
     else:
         # Turn. Compute alpha, R, etc.
 
         # --->>> Implement your code to compute x, y, theta here.
+        l = ticks_to_mm * motor_ticks[0]
+        r = ticks_to_mm * motor_ticks[1]
+        theta = old_pose[2]
+        alpha = (r-l)/robot_width
+        Radius = l/alpha
+        Cx = old_pose[0] - ((Radius+robot_width)/2)*sin(theta)
+        Cy = old_pose[1] - ((Radius+robot_width)/2)*-cos(theta)
+        theta += alpha
+        theta %= 2 * pi
+        x = Cx + ((Radius+robot_width)/2)*sin(theta)
+        y = Cy + ((Radius+robot_width)/2)*-cos(theta)
         return (x, y, theta)
 
 if __name__ == '__main__':
