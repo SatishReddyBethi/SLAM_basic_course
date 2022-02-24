@@ -16,11 +16,26 @@ from math import sqrt
 # the index pair (i, j), where i is the index of the cylinder, and
 # j is the index of the reference_cylinder, to the result list.
 # This is the function developed in slam_04_b_find_cylinder_pairs.
+
+def dist(point1,point2):
+    return sqrt(((point2[0]-point1[0])**2) + ((point2[1]-point1[1])**2)).real
+
 def find_cylinder_pairs(cylinders, reference_cylinders, max_radius):
     cylinder_pairs = []
 
     # --->>> Insert here your code from the last question,
     # slam_04_b_find_cylinder_pairs.
+    for i in range(len(reference_cylinders)):
+            min_dist = 100000
+            closest_cyl = -1
+            for j in range(len(cylinders)):
+                distance = dist(reference_cylinders[i],cylinders[j])
+                if(distance<min_dist):
+                    min_dist = distance
+                    closest_cyl = j
+
+            if(min_dist < max_radius and closest_cyl != -1):
+                cylinder_pairs.append((i,closest_cyl))
 
     return cylinder_pairs
 
@@ -88,8 +103,8 @@ if __name__ == '__main__':
     logfile.read("robot_arena_landmarks.txt")
     reference_cylinders = [l[1:3] for l in logfile.landmarks]
 
-    out_file = file("estimate_transform.txt", "w")
-    for i in xrange(len(logfile.scan_data)):
+    out_file = open("estimate_transform.txt", "w")
+    for i in range(len(logfile.scan_data)):
         # Compute the new pose.
         pose = filter_step(pose, logfile.motor_ticks[i],
                            ticks_to_mm, robot_width,
@@ -121,7 +136,7 @@ if __name__ == '__main__':
 
         # Write to file.
         # The pose.
-        print >> out_file, "F %f %f %f" % pose
+        out_file.write("F %f %f %f\n" % pose)
         # The detected cylinders in the scanner's coordinate system.
         write_cylinders(out_file, "D C", cartesian_cylinders)
         # The detected cylinders, transformed using the estimated trafo.
