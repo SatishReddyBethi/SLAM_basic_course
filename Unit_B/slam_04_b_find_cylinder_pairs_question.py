@@ -3,11 +3,14 @@
 # in the reference cylinder dataset and output it.
 # 04_b_find_cylinder_pairs
 # Claus Brenner, 14 NOV 2012
+from cmath import sqrt
 from lego_robot import *
 from slam_b_library import filter_step
 from slam_04_a_project_landmarks import\
      compute_scanner_cylinders, write_cylinders
 
+def dist(point1,point2):
+    return sqrt(((point2[0]-point1[0])**2) + ((point2[1]-point1[1])**2)).real
 # Given a list of cylinders (points) and reference_cylinders:
 # For every cylinder, find the closest reference_cylinder and add
 # the index pair (i, j), where i is the index of the cylinder, and
@@ -20,6 +23,17 @@ def find_cylinder_pairs(cylinders, reference_cylinders, max_radius):
     # In the loop, if cylinders[i] is closest to reference_cylinders[j],
     # and their distance is below max_radius, then add the
     # tuple (i,j) to cylinder_pairs, i.e., cylinder_pairs.append( (i,j) ).
+    for i in range(len(reference_cylinders)):
+        min_dist = 100000
+        closest_cyl = -1
+        for j in range(len(cylinders)):
+            distance = dist(reference_cylinders[i],cylinders[j])
+            if(distance<min_dist):
+                min_dist = distance
+                closest_cyl = j
+
+        if(min_dist < max_radius and closest_cyl != -1):
+            cylinder_pairs.append((i,closest_cyl))
 
     return cylinder_pairs
 
@@ -51,8 +65,8 @@ if __name__ == '__main__':
     reference_cylinders = [l[1:3] for l in logfile.landmarks]
 
     # Iterate over all positions.
-    out_file = file("find_cylinder_pairs.txt", "w")
-    for i in xrange(len(logfile.scan_data)):
+    out_file = open("find_cylinder_pairs.txt", "w")
+    for i in range(len(logfile.scan_data)):
         # Compute the new pose.
         pose = filter_step(pose, logfile.motor_ticks[i],
                            ticks_to_mm, robot_width,
@@ -71,7 +85,7 @@ if __name__ == '__main__':
 
         # Write to file.
         # The pose.
-        print >> out_file, "F %f %f %f" % pose
+        out_file.write("F %f %f %f\n" % pose)
         # The detected cylinders in the scanner's coordinate system.
         write_cylinders(out_file, "D C", cartesian_cylinders)
         # The reference cylinders which were part of a cylinder pair.
