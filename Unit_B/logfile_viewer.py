@@ -1,7 +1,7 @@
 # Python routines to inspect a ikg LEGO robot logfile.
-# Author: Claus Brenner, 28 OCT 2012
-from Tkinter import *
-import tkFileDialog
+# Author: Claus Brenner, 28.10.2012
+from tkinter import *
+import tkinter.filedialog as tkFileDialog
 from lego_robot import *
 from math import sin, cos, pi
 
@@ -19,10 +19,10 @@ max_scanner_range = 2200.0
 
 class DrawableObject(object):
     def draw(self, at_step):
-        print "To be overwritten - will draw a certain point in time:", at_step
+        print("To be overwritten - will draw a certain point in time:", at_step)
 
     def background_draw(self):
-        print "Background draw."
+        print("Background draw.")
 
 class Trajectory(DrawableObject):
     def __init__(self, points, canvas,
@@ -148,7 +148,8 @@ class Points(DrawableObject):
 
     def draw(self, at_step):
         if self.cursor_objects:
-            map(self.canvas.delete, self.cursor_objects)
+            for cursor_obj in self.cursor_objects:
+                self.canvas.delete(cursor_obj)
             self.cursor_objects = []
         if at_step < len(self.points):
             for c in self.points[at_step]:
@@ -230,11 +231,11 @@ def load_data():
                      for cylinders_one_scan in logfile.detected_cylinders ]
         draw_objects.append(Points(positions, sensor_canvas, "#88FF88"))
 
-    # Insert: detected cylinders, transformed into world coord system.
+    # Insert: detected cylinders, in world coord system.
     if logfile.detected_cylinders and logfile.filtered_positions and \
         len(logfile.filtered_positions[0]) > 2:
         positions = []
-        for i in xrange(min(len(logfile.detected_cylinders), len(logfile.filtered_positions))):
+        for i in range(min(len(logfile.detected_cylinders), len(logfile.filtered_positions))):
             this_pose_positions = []
             pos = logfile.filtered_positions[i]
             dx = cos(pos[2])

@@ -120,21 +120,24 @@ class LegoLogfile(object):
                     self.landmarks = []
                     first_landmarks = False
                 if sp[1] == 'C':
-                    self.landmarks.append( tuple(['C'] + map(float, sp[2:])) )
+                    reference_cyls = map(float, sp[2:])
+                    reference_cyls = list(reference_cyls)
+                    self.landmarks.append( tuple(['C'] + reference_cyls) )
                     
             # D is detected landmarks (in each scan).
             # File format: D <type> info...
             # Supported types:
             # Cylinder: D C x y x y ...
-            #   Stored: List of lists of (x, y) tuples of the cylinder positions,
-            #   one list per scan.
+            # Stored: List of lists of (x, y) tuples of the cylinder positions,
+            #  one list per scan.
             elif sp[0] == 'D':
                 if sp[1] == 'C':
                     if first_detected_cylinders:
                         self.detected_cylinders = []
                         first_detected_cylinders = False
                     cyl = map(float, sp[2:])
-                    self.detected_cylinders.append([(cyl[2*i], cyl[2*i+1]) for i in range(len(cyl)/2)])
+                    cyl = list(cyl)
+                    self.detected_cylinders.append([(cyl[2*i], cyl[2*i+1]) for i in range(int(len(cyl)/2))])
 
             # W is information to be plotted in the world (in each scan).
             # File format: W <type> info...
@@ -148,7 +151,8 @@ class LegoLogfile(object):
                         self.world_cylinders = []
                         first_world_cylinders = False
                     cyl = map(float, sp[2:])
-                    self.world_cylinders.append([(cyl[2*i], cyl[2*i+1]) for i in range(len(cyl)/2)])
+                    cyl = list(cyl)
+                    self.world_cylinders.append([(cyl[2*i], cyl[2*i+1]) for i in range(int(len(cyl)/2))])
 
         f.close()
 
