@@ -11,6 +11,8 @@ from slam_04_a_project_landmarks import\
      compute_scanner_cylinders, write_cylinders
 from math import sqrt, atan2
 
+def dist(point1,point2):
+    return sqrt(((point2[0]-point1[0])**2) + ((point2[1]-point1[1])**2)).real
 # Given a list of cylinders (points) and reference_cylinders:
 # For every cylinder, find the closest reference_cylinder and add
 # the index pair (i, j), where i is the index of the cylinder, and
@@ -19,7 +21,19 @@ from math import sqrt, atan2
 def find_cylinder_pairs(cylinders, reference_cylinders, max_radius):
     cylinder_pairs = []
 
-    # --->>> Insert your previous solution here.
+    # --->>> Insert here your code from the last question,
+    # slam_04_b_find_cylinder_pairs.
+    for i in range(len(cylinders)):
+            min_dist = 100000
+            closest_cyl = -1
+            for j in range(len(reference_cylinders)):
+                distance = dist(cylinders[i],reference_cylinders[j])
+                if(distance<min_dist):
+                    min_dist = distance
+                    closest_cyl = j
+
+            if(min_dist < max_radius and closest_cyl != -1):
+                cylinder_pairs.append((i,closest_cyl))
 
     return cylinder_pairs
 
@@ -44,9 +58,36 @@ def estimate_transform(left_list, right_list, fix_scale = False):
     # Compute left and right center.
     lc = compute_center(left_list)
     rc = compute_center(right_list)
+    Px = 0
+    Py = 0
+    ll = 0
+    rr = 0
+    # --->>> Insert here your code to compute lambda, c, s and tx, ty.
+    for j in range(len(left_list)):
+        # left prime
+        Lx_prime = left_list[j][0]-lc[0]
+        Ly_prime = left_list[j][1]-lc[1]
+        # right prime
+        Rx_prime = right_list[j][0]-rc[0]
+        Ry_prime = right_list[j][1]-rc[1]
+        Px += (Rx_prime * Lx_prime) + (Ry_prime * Ly_prime)
+        Py += (Ry_prime * Lx_prime) - (Rx_prime * Ly_prime)
+        rr = (Rx_prime * Rx_prime) + (Ry_prime * Ry_prime)
+        ll = (Lx_prime * Lx_prime) + (Ly_prime * Ly_prime)
 
-    # --->>> Insert your previous solution here.
+    la = 1
 
+    if(rr == 0 or ll == 0):
+        return None
+
+    if(not fix_scale):
+        la = sqrt(rr/ll)
+
+    c = Px/sqrt((Px**2) + (Py**2))
+    s = Py/sqrt((Px**2) + (Py**2))
+    
+    tx = rc[0] - (la * ((c * lc[0]) - (s * lc[1])))
+    ty = rc[1] - (la * ((s * lc[0]) + (c * lc[1])))
     return la, c, s, tx, ty
 
 # Given a similarity transformation:
@@ -64,10 +105,12 @@ def apply_transform(trafo, p):
 # similarity transform. Note this changes the position as well as
 # the heading.
 def correct_pose(pose, trafo):
-    
+    la, c, s, tx, ty = trafo
     # --->>> This is what you'll have to implement.
-
-    return (pose[0], pose[1], pose[2])  # Replace this by the corrected pose.
+    x = pose[0] + tx
+    y = pose[1] + ty
+    theta = pose[2] + atan2(s,c)
+    return (x, y, theta)  # Replace this by the corrected pose.
 
 
 if __name__ == '__main__':
@@ -96,8 +139,8 @@ if __name__ == '__main__':
     logfile.read("robot_arena_landmarks.txt")
     reference_cylinders = [l[1:3] for l in logfile.landmarks]
 
-    out_file = file("apply_transform.txt", "w")
-    for i in xrange(len(logfile.scan_data)):
+    out_file = open("apply_transform.txt", "w")
+    for i in range(len(logfile.scan_data)):
         # Compute the new pose.
         pose = filter_step(pose, logfile.motor_ticks[i],
                            ticks_to_mm, robot_width,
@@ -114,6 +157,8 @@ if __name__ == '__main__':
         cylinder_pairs = find_cylinder_pairs(
             world_cylinders, reference_cylinders, max_cylinder_distance)
 
+        if(i==61):
+            print(61)
         # Estimate a transformation using the cylinder pairs.
         trafo = estimate_transform(
             [world_cylinders[pair[0]] for pair in cylinder_pairs],
@@ -133,7 +178,7 @@ if __name__ == '__main__':
 
         # Write to file.
         # The pose.
-        print >> out_file, "F %f %f %f" % pose
+        out_file.write("F %f %f %f\n" % pose)
         # The detected cylinders in the scanner's coordinate system.
         write_cylinders(out_file, "D C", cartesian_cylinders)
         # The detected cylinders, transformed using the estimated trafo.

@@ -25,11 +25,11 @@ def find_cylinder_pairs(cylinders, reference_cylinders, max_radius):
 
     # --->>> Insert here your code from the last question,
     # slam_04_b_find_cylinder_pairs.
-    for i in range(len(reference_cylinders)):
+    for i in range(len(cylinders)):
             min_dist = 100000
             closest_cyl = -1
-            for j in range(len(cylinders)):
-                distance = dist(reference_cylinders[i],cylinders[j])
+            for j in range(len(reference_cylinders)):
+                distance = dist(cylinders[i],reference_cylinders[j])
                 if(distance<min_dist):
                     min_dist = distance
                     closest_cyl = j
@@ -60,9 +60,38 @@ def estimate_transform(left_list, right_list, fix_scale = False):
     # Compute left and right center.
     lc = compute_center(left_list)
     rc = compute_center(right_list)
-
+    Px = 0
+    Py = 0
+    ll = 0
+    rr = 0
+    m = len(left_list)
     # --->>> Insert here your code to compute lambda, c, s and tx, ty.
+    for j in range(m):
+        # left prime
+        Lx_prime = left_list[j][0]-lc[0]
+        Ly_prime = left_list[j][1]-lc[1]
+        # right prime
+        Rx_prime = right_list[j][0]-rc[0]
+        Ry_prime = right_list[j][1]-rc[1]
 
+        Px += (Rx_prime * Lx_prime) + (Ry_prime * Ly_prime)
+        Py += (Ry_prime * Lx_prime) - (Rx_prime * Ly_prime)
+        rr = (Rx_prime * Rx_prime) + (Ry_prime * Ry_prime)
+        ll = (Lx_prime * Lx_prime) + (Ly_prime * Ly_prime)
+
+    la = 1
+
+    if(rr == 0 or ll == 0):
+        return None
+
+    if(not fix_scale):
+        la = sqrt(rr/ll)
+
+    c = Px/sqrt((Px**2) + (Py**2))
+    s = Py/sqrt((Px**2) + (Py**2))
+    
+    tx = rc[0] - (la * ((c * lc[0]) - (s * lc[1])))
+    ty = rc[1] - (la * ((s * lc[0]) + (c * lc[1])))
     return la, c, s, tx, ty
 
 # Given a similarity transformation:
@@ -122,10 +151,9 @@ if __name__ == '__main__':
             world_cylinders, reference_cylinders, max_cylinder_distance)
 
         # Estimate a transformation using the cylinder pairs.
-        trafo = estimate_transform(
-            [world_cylinders[pair[0]] for pair in cylinder_pairs],
-            [reference_cylinders[pair[1]] for pair in cylinder_pairs],
-            fix_scale = True)
+        left_list = [world_cylinders[pair[0]] for pair in cylinder_pairs]
+        right_list = [reference_cylinders[pair[1]] for pair in cylinder_pairs]
+        trafo = estimate_transform(left_list,right_list,fix_scale = True)
 
         # Transform the cylinders using the estimated transform.
         transformed_world_cylinders = []
