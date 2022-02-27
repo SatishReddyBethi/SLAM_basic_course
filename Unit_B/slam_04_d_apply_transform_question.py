@@ -10,106 +10,21 @@ from slam_b_library import filter_step
 from slam_04_a_project_landmarks import\
      compute_scanner_cylinders, write_cylinders
 from math import sqrt, atan2
-
-def dist(point1,point2):
-    return sqrt(((point2[0]-point1[0])**2) + ((point2[1]-point1[1])**2)).real
-# Given a list of cylinders (points) and reference_cylinders:
-# For every cylinder, find the closest reference_cylinder and add
-# the index pair (i, j), where i is the index of the cylinder, and
-# j is the index of the reference_cylinder, to the result list.
-# This is the function developed in slam_04_b_find_cylinder_pairs.
-def find_cylinder_pairs(cylinders, reference_cylinders, max_radius):
-    cylinder_pairs = []
-
-    # --->>> Insert here your code from the last question,
-    # slam_04_b_find_cylinder_pairs.
-    for i in range(len(cylinders)):
-            min_dist = 100000
-            closest_cyl = -1
-            for j in range(len(reference_cylinders)):
-                distance = dist(cylinders[i],reference_cylinders[j])
-                if(distance<min_dist):
-                    min_dist = distance
-                    closest_cyl = j
-
-            if(min_dist < max_radius and closest_cyl != -1):
-                cylinder_pairs.append((i,closest_cyl))
-
-    return cylinder_pairs
-
-# Given a point list, return the center of mass.
-def compute_center(point_list):
-    # Safeguard against empty list.
-    if not point_list:
-        return (0.0, 0.0)
-    # If not empty, sum up and divide.
-    sx = sum([p[0] for p in point_list])
-    sy = sum([p[1] for p in point_list])
-    return (sx / len(point_list), sy / len(point_list))
-
-# Given a left_list of points and a right_list of points, compute
-# the parameters of a similarity transform: scale, rotation, translation.
-# If fix_scale is True, use the fixed scale of 1.0.
-# The returned value is a tuple of:
-# (scale, cos(angle), sin(angle), x_translation, y_translation)
-# i.e., the rotation angle is not given in radians, but rather in terms
-# of the cosine and sine.
-def estimate_transform(left_list, right_list, fix_scale = False):
-    # Compute left and right center.
-    lc = compute_center(left_list)
-    rc = compute_center(right_list)
-    Px = 0
-    Py = 0
-    ll = 0
-    rr = 0
-    # --->>> Insert here your code to compute lambda, c, s and tx, ty.
-    for j in range(len(left_list)):
-        # left prime
-        Lx_prime = left_list[j][0]-lc[0]
-        Ly_prime = left_list[j][1]-lc[1]
-        # right prime
-        Rx_prime = right_list[j][0]-rc[0]
-        Ry_prime = right_list[j][1]-rc[1]
-        Px += (Rx_prime * Lx_prime) + (Ry_prime * Ly_prime)
-        Py += (Ry_prime * Lx_prime) - (Rx_prime * Ly_prime)
-        rr = (Rx_prime * Rx_prime) + (Ry_prime * Ry_prime)
-        ll = (Lx_prime * Lx_prime) + (Ly_prime * Ly_prime)
-
-    la = 1
-
-    if(rr == 0 or ll == 0):
-        return None
-
-    if(not fix_scale):
-        la = sqrt(rr/ll)
-
-    c = Px/sqrt((Px**2) + (Py**2))
-    s = Py/sqrt((Px**2) + (Py**2))
-    
-    tx = rc[0] - (la * ((c * lc[0]) - (s * lc[1])))
-    ty = rc[1] - (la * ((s * lc[0]) + (c * lc[1])))
-    return la, c, s, tx, ty
-
-# Given a similarity transformation:
-# trafo = (scale, cos(angle), sin(angle), x_translation, y_translation)
-# and a point p = (x, y), return the transformed point.
-def apply_transform(trafo, p):
-    la, c, s, tx, ty = trafo
-    lac = la * c
-    las = la * s
-    x = lac * p[0] - las * p[1] + tx
-    y = las * p[0] + lac * p[1] + ty
-    return (x, y)
-
+from slam_04_c_estimate_transform_question import find_cylinder_pairs, estimate_transform, apply_transform
 # Correct the pose = (x, y, heading) of the robot using the given
 # similarity transform. Note this changes the position as well as
 # the heading.
 def correct_pose(pose, trafo):
     la, c, s, tx, ty = trafo
+    old_x = pose[0]
+    old_y = pose[1]
+    old_theta = pose[2]
     # --->>> This is what you'll have to implement.
-    x = pose[0] + tx
-    y = pose[1] + ty
-    theta = pose[2] + atan2(s,c)
+    # Update the position
+    x, y = apply_transform( trafo, (old_x,old_y) )
+    # Update the heading angle
+    theta = old_theta + atan2(s,c)
+
     return (x, y, theta)  # Replace this by the corrected pose.
 
 
