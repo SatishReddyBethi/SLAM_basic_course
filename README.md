@@ -10,4 +10,6 @@ It also has my notes for deeper understanding of the SLAM problem.
 1. Build a *motion model* of your robot/device (Convert raw data from sensors into real-world coordinates estimates)
 2. Estimate the robot pose at each state using the motion model and create a trajectory in world coordinate frame
 3. If known landmarks/features exist in the surrounding, and if the robot has a sensor that can detect those surroundings, estimate the position of those landmarks using the sensor data and the robot's estimated pose at each state.
-4. Get a similarity transform between the estimate landmark positions and the actual landmark positions. Then, correct the estimated poses using the similarity transform. (Scale can be set to 1 because, the robot is a rigid body that can't scale)
+4. Get a similarity transform between the estimate landmark positions and the actual landmark positions. Then, correct the estimated poses using the similarity transform.\
+(Scale can be set to 1 because, the robot is a rigid body that can't scale)\
+    *(Note: The similarity transform can also be found using the entire point cloud data from the LiDar sensor through ICP)*
