@@ -4,7 +4,7 @@
 # 06_e_histogram_filter_cleanedup
 # Claus Brenner, 29 NOV 2012
 from distribution import *
-from pylab import plot, show, ylim
+import matplotlib.pyplot as plt
 
 # Import the helper functions from the previous file.
 # If you implemented these functions in another file, put the filename here.
@@ -15,12 +15,12 @@ from slam_06_d_histogram_filter import move, convolve, multiply
 #
 def histogram_plot(prediction, measurement, correction):
     """Helper to draw all curves in each filter step."""
-    plot(prediction.plotlists(*arena)[0], prediction.plotlists(*arena)[1],
-         color='#C0C0FF', linestyle='steps', linewidth=5)
-    plot(measurement.plotlists(*arena)[0], measurement.plotlists(*arena)[1],
-         color='#C0FFC0', linestyle='steps', linewidth=5)    
-    plot(correction.plotlists(*arena)[0], correction.plotlists(*arena)[1],
-         color='#FFC0C0', linestyle='steps', linewidth=5)
+    plt.plot(prediction.plotlists(*arena)[0], prediction.plotlists(*arena)[1],
+         color='#C0C0FF', drawstyle='steps', linewidth=5)
+    plt.plot(measurement.plotlists(*arena)[0], measurement.plotlists(*arena)[1],
+         color='#C0FFC0', drawstyle='steps', linewidth=5)    
+    plt.plot(correction.plotlists(*arena)[0], correction.plotlists(*arena)[1],
+         color='#FFC0C0', drawstyle='steps', linewidth=5)
 
 #
 # Histogram filter step.
@@ -50,10 +50,10 @@ if __name__ == '__main__':
     measurements = [ Dist(60, 10), Dist(140, 20) ]
 
     # This is the filter loop.
-    for i in xrange(len(controls)):
+    for i in range(len(controls)):
         # Call the filter step. The corrected distribution becomes the new position.
         (prediction, position) = histogram_filter_step(position, controls[i], measurements[i])
         histogram_plot(prediction, measurements[i], position)
 
-    ylim(0.0, 0.16)
-    show()
+    plt.ylim(0.0, 0.16)
+    plt.show()
