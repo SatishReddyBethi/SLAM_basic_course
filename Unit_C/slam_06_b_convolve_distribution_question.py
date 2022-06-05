@@ -22,7 +22,7 @@ def convolve(a, b):
             else:
                 final_values[i+j] += conv_value
     
-    return Distribution(a.offset + b.offset, final_values)  # Replace this by your own result.
+    return Distribution(a.offset + b.offset, final_values)
 
 
 if __name__ == '__main__':

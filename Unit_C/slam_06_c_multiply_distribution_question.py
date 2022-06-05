@@ -16,7 +16,7 @@ def multiply(a, b):
 
      final_dist = Distribution(final_start, final_values)
      final_dist.normalize()
-     return final_dist # Modify this to return your result.
+     return final_dist
 
 
 if __name__ == '__main__':
