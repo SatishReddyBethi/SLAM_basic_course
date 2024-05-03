@@ -125,14 +125,13 @@ if __name__ == '__main__':
 
     # Write all states, all state covariances, and matched cylinders to file.
     f = open("kalman_prediction.txt", "w")
-    for i in xrange(len(states)):
+    for i in range(len(states)):
         # Output the center of the scanner, not the center of the robot.
-        print >> f, "F %f %f %f" % \
-            tuple(states[i] + [scanner_displacement * cos(states[i][2]),
-                               scanner_displacement * sin(states[i][2]),
-                               0.0])
+        displaced_state = s + [scanner_displacement * cos(states[i][2]), scanner_displacement * sin(states[i][2]), 0.0]
+        f.write(f"F {displaced_state[0]} {displaced_state[1]} {displaced_state[2]}")
         # Convert covariance matrix to angle stddev1 stddev2 stddev-heading form
         e = ExtendedKalmanFilter.get_error_ellipse(covariances[i])
-        print >> f, "E %f %f %f %f" % (e + (sqrt(covariances[i][2,2]),))
+        filterred_data = e + (sqrt(covariances[i][2,2]),)
+        print(f"E {filterred_data[0]} {filterred_data[1]} {filterred_data[2]} {filterred_data[3]}")
 
     f.close()

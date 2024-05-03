@@ -68,7 +68,7 @@ if __name__ == '__main__':
     w = 150.0
 
     # Compute derivative numerically.
-    print "Numeric differentiation dx, dy, dtheta:"
+    print("Numeric differentiation dx, dy, dtheta:")
     delta = 1e-7
     state_x = array([x + delta, y, theta])
     state_y = array([x, y + delta, theta])
@@ -80,15 +80,15 @@ if __name__ == '__main__':
     dg_dtheta = (ExtendedKalmanFilter.g(state_theta, control, w) -\
                  ExtendedKalmanFilter.g(state, control, w)) / delta
     dg_dstate_numeric = column_stack([dg_dx, dg_dy, dg_dtheta])
-    print dg_dstate_numeric
+    print(dg_dstate_numeric)
 
     # Use the above code to compute the derivative analytically.
-    print "Analytic differentiation dx, dy, dtheta:"
+    print("Analytic differentiation dx, dy, dtheta:")
     dg_dstate_analytic = ExtendedKalmanFilter.dg_dstate(state, control, w)
-    print dg_dstate_analytic
+    print(dg_dstate_analytic)
 
     # The difference should be close to zero (depending on the setting of
     # delta, above).
-    print "Difference:"
-    print dg_dstate_numeric - dg_dstate_analytic
-    print "Seems correct:", allclose(dg_dstate_numeric, dg_dstate_analytic)
+    print("Difference:")
+    print(dg_dstate_numeric - dg_dstate_analytic)
+    print("Seems correct:", allclose(dg_dstate_numeric, dg_dstate_analytic))
