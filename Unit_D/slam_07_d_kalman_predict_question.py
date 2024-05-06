@@ -39,17 +39,43 @@ class ExtendedKalmanFilter:
 
     @staticmethod
     def dg_dstate(state, control, w):
-
         # --->>> Copy your previous dg_dstate code here.
+        theta = state[2]
+        l, r = control
+        if r != l:
+            alpha = (r - l) / w
+            alpha = (alpha + pi) % (2*pi) - pi
+            rad = l/alpha
+            m = array([[1, 0, (rad + w/2)*(cos(theta + alpha)-cos(theta))], 
+                       [0, 1, (rad + w/2)*(sin(theta + alpha)-sin(theta))], 
+                       [0, 0, 1]])
+        else:
+            m = array([[1, 0, -l*sin(theta)],
+                       [0, 1, l*cos(theta)],
+                       [0, 0, 1]])
 
-        return array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+        return m
 
     @staticmethod
     def dg_dcontrol(state, control, w):
-
         # --->>> Copy your previous dg_dcontrol code here.
+        theta = state[2]
+        l, r = tuple(control)
+        if r != l:
+            alpha = (r - l) / w
+            alpha = (alpha + pi) % (2*pi) - pi
+            co_1 = (w*r)/(r-l)**2
+            co_2 = (r+l)/(2*(r-l))
+            co_3 = (w*l)/(r-l)**2
+            m = array([[(co_1*(sin(theta+alpha)-sin(theta)))-(co_2*cos(theta+alpha)), (-co_3*(sin(theta+alpha)-sin(theta)))+(co_2*cos(theta+alpha))],
+                       [(co_1*(-cos(theta+alpha)+cos(theta)))-(co_2*sin(theta+alpha)), (-co_3*(-cos(theta+alpha)+cos(theta)))+(co_2*sin(theta+alpha))],
+                       [-1/w, 1/w]])
+        else:
+            m = array([[(1/2)*(cos(theta)+((l/w)*sin(theta))), (1/2)*((-(l/w)*sin(theta))+cos(theta))],
+                       [(1/2)*(sin(theta)-((l/w)*cos(theta))), (1/2)*((-(l/w)*cos(theta))+sin(theta))],
+                       [-1/w, 1/w]])     
             
-        return array([[1, 2], [3, 4], [5, 6]])
+        return m
 
     @staticmethod
     def get_error_ellipse(covariance):
@@ -74,16 +100,22 @@ class ExtendedKalmanFilter:
         # In Python/Numpy, you may use diag([a, b]) to get
         # [[ a, 0 ],
         #  [ 0, b ]].
+        sigma_l_sq = (self.control_motion_factor*left)**2 + (self.control_turn_factor*(left-right))**2
+        sigma_r_sq = (self.control_motion_factor*right)**2 + (self.control_turn_factor*(left-right))**2
+        control_covariance = diag([sigma_l_sq, sigma_r_sq])
         # Then, compute G using dg_dstate and V using dg_dcontrol.
         # Then, compute the new self.covariance.
         # Note that the transpose of a Numpy array G is expressed as G.T,
         # and the matrix product of A and B is written as dot(A, B).
         # Writing A*B instead will give you the element-wise product, which
         # is not intended here.
+        G = self.dg_dstate(self.state, control, self.robot_width)
+        V = self.dg_dcontrol(self.state, control, self.robot_width)
+        self.covariance = G@self.covariance@G.T + V@control_covariance@V.T
 
         # state' = g(state, control)
-
         # --->>> Put your code to compute the new self.state here.
+        self.state = self.g(self.state, control, self.robot_width)
 
 
 if __name__ == '__main__':
@@ -127,11 +159,13 @@ if __name__ == '__main__':
     f = open("kalman_prediction.txt", "w")
     for i in range(len(states)):
         # Output the center of the scanner, not the center of the robot.
-        displaced_state = s + [scanner_displacement * cos(states[i][2]), scanner_displacement * sin(states[i][2]), 0.0]
-        f.write(f"F {displaced_state[0]} {displaced_state[1]} {displaced_state[2]}")
+        displaced_state = states[i] + [scanner_displacement * cos(states[i][2]),
+                                       scanner_displacement * sin(states[i][2]),
+                                       0.0]
+        f.write(f"F {displaced_state[0]} {displaced_state[1]} {displaced_state[2]}\n")
         # Convert covariance matrix to angle stddev1 stddev2 stddev-heading form
         e = ExtendedKalmanFilter.get_error_ellipse(covariances[i])
         filterred_data = e + (sqrt(covariances[i][2,2]),)
-        print(f"E {filterred_data[0]} {filterred_data[1]} {filterred_data[2]} {filterred_data[3]}")
+        f.write(f"E {filterred_data[0]} {filterred_data[1]} {filterred_data[2]} {filterred_data[3]}\n")
 
     f.close()

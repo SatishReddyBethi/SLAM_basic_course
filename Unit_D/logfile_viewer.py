@@ -205,7 +205,8 @@ class Points(DrawableObject):
 
     def draw(self, at_step):
         if self.cursor_objects:
-            map(self.canvas.delete, self.cursor_objects)
+            for old_object in self.cursor_objects:
+                self.canvas.delete(old_object)
             self.cursor_objects = []
         if at_step < len(self.points):
             for c in self.points[at_step]:

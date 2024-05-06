@@ -36,16 +36,20 @@ class ExtendedKalmanFilter:
             # This is for the case l != r.
             # Note g has 3 components and control has 2, so the result
             # will be a 3x2 (rows x columns) matrix.
-            pass  # Remove this.
-            
-            
+            alpha = (r - l) / w
+            co_1 = (w*r)/(r-l)**2
+            co_2 = (r+l)/(2*(r-l))
+            co_3 = (w*l)/(r-l)**2
+            m = array([[(co_1*(sin(theta+alpha)-sin(theta)))-(co_2*cos(theta+alpha)), (-co_3*(sin(theta+alpha)-sin(theta)))+(co_2*cos(theta+alpha))],
+                       [(co_1*(-cos(theta+alpha)+cos(theta)))-(co_2*sin(theta+alpha)), (-co_3*(-cos(theta+alpha)+cos(theta)))+(co_2*sin(theta+alpha))],
+                       [-1/w, 1/w]])
         else:
 
             # --->>> Put your code here.
             # This is for the special case l == r.
-            pass  # Remove this.            
-
-        m = array([[1, 2], [3, 4], [5, 6]])  # Remove this.
+            m = array([[(1/2)*(cos(theta)+((l/w)*sin(theta))), (1/2)*((-(l/w)*sin(theta))+cos(theta))],
+                       [(1/2)*(sin(theta)-((l/w)*cos(theta))), (1/2)*((-(l/w)*cos(theta))+sin(theta))],
+                       [-1/w, 1/w]])     
             
         return m
 

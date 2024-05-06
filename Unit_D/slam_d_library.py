@@ -8,10 +8,10 @@ from lego_robot import LegoLogfile
 # Line header defines the start of each line, e.g. "D C" for a detected
 # cylinder or "W C" for a world cylinder.
 def write_cylinders(file_desc, line_header, cylinder_list):
-    print(file_desc, line_header)
+    file_desc.write(line_header)
     for c in cylinder_list:
-        print(file_desc, "%.1f %.1f" % c)
-    print(file_desc)
+        file_desc.write(f" {c[0]:.1f} {c[1]:.1f}")
+    file_desc.write("\n")
 
 # Find the derivative in scan data, ignoring invalid measurements.
 def compute_derivative(scan, min_dist):

@@ -29,8 +29,17 @@ class ExtendedKalmanFilter:
         # x y theta is state[0] state[1] state[2]
         # x_m y_m is landmark[0] landmark[1]
         # The Jacobian of h is a 2x3 matrix.
-
-        return array([[1, 2, 3], [4, 5, 6]]) # Replace this.
+        x, y, theta = state
+        x_m, y_m = landmark
+        d = scanner_displacement
+        x_l = x + scanner_displacement * cos(theta)
+        y_l = y + scanner_displacement * sin(theta)
+        d_x = x_m - x_l
+        d_y = y_m - y_l
+        q = d_x**2 + d_y**2
+        H = array([[-d_x/sqrt(q), -d_y/sqrt(q), (d/sqrt(q))*(d_x*sin(theta)-d_y*cos(theta))],
+                   [d_y/q, -d_x/q, (-(d/q)*(d_x*cos(theta)+d_y*sin(theta)))-1]])
+        return H
 
 
 if __name__ == '__main__':
