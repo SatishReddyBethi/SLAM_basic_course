@@ -9,6 +9,7 @@
 from math import sin, cos, pi
 from lego_robot import *
 import slam_02_a_filter_motor_question as oldmodel
+import os
 
 # This function takes the old (x, y, heading) pose and the motor ticks
 # (ticks_left, ticks_right) and returns the new (x, y, heading).
@@ -66,6 +67,9 @@ if __name__ == '__main__':
         pose = filter_step(pose, ticks, ticks_to_mm, robot_width,
                            scanner_displacement)
         filtered.append(pose)
+
+    if not os.path.exists("Generated_files"):
+        os.makedirs("Generated_files")
 
     # Write all filtered positions to file.
     f = open("Generated_files/poses_from_ticks.txt", "w")

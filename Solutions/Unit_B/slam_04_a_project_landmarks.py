@@ -6,6 +6,7 @@
 from lego_robot import *
 from slam_b_library import filter_step, compute_derivative,\
      find_cylinders, compute_cartesian_coordinates
+import os
 
 # Put all cylinder extraction and position finding into one function.
 def compute_scanner_cylinders(scan, jump, min_dist, cylinder_offset):
@@ -43,6 +44,9 @@ if __name__ == '__main__':
     logfile.read("robot4_scan.txt")
 
     # Iterate over all positions.
+    if not os.path.exists("Generated_files"):
+        os.makedirs("Generated_files")
+
     out_file = open("Generated_files/project_landmarks.txt", "w")
     for i in range(len(logfile.scan_data)):
         # Compute the new pose.

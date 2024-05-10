@@ -6,6 +6,7 @@
 from lego_robot import *
 from math import sin, cos
 import slam_03_c_find_cylinders_question as oldCode
+import os
 
 # Find the derivative in scan data, ignoring invalid measurements.
 def compute_derivative(scan, min_dist):
@@ -56,6 +57,9 @@ if __name__ == '__main__':
     # With zero or more points.
     # Note "D C" is also written for otherwise empty lines (no
     # cylinders in scan)
+    if not os.path.exists("Generated_files"):
+        os.makedirs("Generated_files")
+
     out_file = open("Generated_files/cylinders.txt", "w")
     for scan in logfile.scan_data:
         # Find cylinders.

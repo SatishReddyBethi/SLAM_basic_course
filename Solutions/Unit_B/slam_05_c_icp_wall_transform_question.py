@@ -13,6 +13,7 @@ from slam_04_d_apply_transform_question import\
      estimate_transform, apply_transform, correct_pose
 from slam_05_a_find_wall_pairs_question import\
      get_subsampled_points, get_corresponding_points_on_wall
+import os
 
 # ICP: Iterate the steps of transforming the points, selecting point pairs, and
 # estimating the transform. Returns the final transformation.
@@ -52,6 +53,9 @@ if __name__ == '__main__':
     logfile.read("robot4_scan.txt")
 
     # Iterate over all positions.
+    if not os.path.exists("Generated_files"):
+        os.makedirs("Generated_files")
+
     out_file = open("Generated_files/icp_wall_transform.txt", "w")
     for i in range(len(logfile.scan_data)):
         # Compute the new pose.

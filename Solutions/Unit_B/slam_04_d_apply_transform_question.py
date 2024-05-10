@@ -11,6 +11,7 @@ from slam_04_a_project_landmarks import\
      compute_scanner_cylinders, write_cylinders
 from math import sqrt, atan2
 from slam_04_c_estimate_transform_question import find_cylinder_pairs, estimate_transform, apply_transform
+import os
 # Correct the pose = (x, y, heading) of the robot using the given
 # similarity transform. Note this changes the position as well as
 # the heading.
@@ -53,6 +54,9 @@ if __name__ == '__main__':
     # Also read the reference cylinders (this is our map).
     logfile.read("robot_arena_landmarks.txt")
     reference_cylinders = [l[1:3] for l in logfile.landmarks]
+
+    if not os.path.exists("Generated_files"):
+        os.makedirs("Generated_files")
 
     out_file = open("Generated_files/apply_transform.txt", "w")
     for i in range(len(logfile.scan_data)):

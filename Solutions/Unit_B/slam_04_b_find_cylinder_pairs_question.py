@@ -8,6 +8,7 @@ from lego_robot import *
 from slam_b_library import filter_step
 from slam_04_a_project_landmarks import\
      compute_scanner_cylinders, write_cylinders
+import os
 
 def dist(point1,point2):
     return sqrt(((point2[0]-point1[0])**2) + ((point2[1]-point1[1])**2)).real
@@ -65,6 +66,9 @@ if __name__ == '__main__':
     reference_cylinders = [l[1:3] for l in logfile.landmarks]
 
     # Iterate over all positions.
+    if not os.path.exists("Generated_files"):
+        os.makedirs("Generated_files")
+
     out_file = open("Generated_files/find_cylinder_pairs.txt", "w")
     for i in range(len(logfile.scan_data)):
         # Compute the new pose.

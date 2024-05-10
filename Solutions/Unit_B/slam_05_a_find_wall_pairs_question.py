@@ -5,6 +5,7 @@
 from lego_robot import *
 from slam_b_library import filter_step, compute_cartesian_coordinates
 from slam_04_a_project_landmarks import write_cylinders
+import os
 
 # Takes one scan and subsamples the measurements, so that every sampling'th
 # point is taken. Returns a list of (x, y) points in the scanner's
@@ -68,6 +69,9 @@ if __name__ == '__main__':
     logfile.read("robot4_scan.txt")
 
     # Iterate over all positions.
+    if not os.path.exists("Generated_files"):
+        os.makedirs("Generated_files")
+
     out_file = open("Generated_files/find_wall_pairs.txt", "w")
     for i in range(len(logfile.scan_data)):
         # Compute the new pose.

@@ -10,6 +10,7 @@ from slam_b_library import filter_step
 from slam_04_a_project_landmarks import\
      compute_scanner_cylinders, write_cylinders
 from math import sqrt
+import os
 
 # Given a list of cylinders (points) and reference_cylinders:
 # For every cylinder, find the closest reference_cylinder and add
@@ -131,6 +132,9 @@ if __name__ == '__main__':
     # Also read the reference cylinders (this is our map).
     logfile.read("robot_arena_landmarks.txt")
     reference_cylinders = [l[1:3] for l in logfile.landmarks]
+
+    if not os.path.exists("Generated_files"):
+        os.makedirs("Generated_files")
 
     out_file = open("Generated_files/estimate_transform.txt", "w")
     for i in range(len(logfile.scan_data)):
