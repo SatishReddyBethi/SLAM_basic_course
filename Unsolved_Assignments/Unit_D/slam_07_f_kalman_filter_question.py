@@ -6,7 +6,7 @@ from lego_robot import *
 from math import sin, cos, pi, atan2, sqrt
 from numpy import *
 from slam_d_library import get_observations, write_cylinders
-
+import os
 
 class ExtendedKalmanFilter:
     def __init__(self, state, covariance,
@@ -180,7 +180,10 @@ if __name__ == '__main__':
         matched_ref_cylinders.append([m[1] for m in observations])
 
     # Write all states, all state covariances, and matched cylinders to file.
-    f = open("kalman_prediction_and_correction.txt", "w")
+    if not os.path.exists("Generated_files"):
+        os.makedirs("Generated_files")
+
+    f = open("Generated_files/kalman_prediction_and_correction.txt", "w")
     for i in range(len(states)):
         # Output the center of the scanner, not the center of the robot.
         displaced_state = states[i] + [scanner_displacement * cos(states[i][2]),
